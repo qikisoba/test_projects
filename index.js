@@ -15,9 +15,9 @@ app.post('/auth/login', loginValidation, UseController.login)
 app.post('/auth/register', registerValidation, UseController.register)
 app.get('/auth/me', checkAuth, UseController.getMe)
 
-app.get('/posts/all', PostController.getAll)
-// app.get('/post/create/:id', PostController.getOne)
-app.post('/posts/create', checkAuth, postCreateValidation, PostController.create)
+app.get('/posts', PostController.getAll)
+app.get('/posts/:id', PostController.getOne)
+app.post('/posts', checkAuth, postCreateValidation, PostController.create)
 // app.delete('/posts', PostController.remove)
 // app.patch('/posts', PostController.update)
 

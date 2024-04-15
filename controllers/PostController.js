@@ -21,10 +21,8 @@ export const create = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    const posts = await PostModel.find().populate({
-      path: "user",
-      select: ["fullName"]
-    })
+    // const posts = await PostModel.find().populate({path: "user",select: ["fullName"]})
+    const posts = await PostModel.find().populate('user').exec();
     res.json(posts)
   } catch (err) {
     console.log(err)
@@ -33,3 +31,45 @@ export const getAll = async (req, res) => {
     })
   }
 }
+
+export const getOne = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    // res.status(500).json(postId);
+
+
+
+    PostModel.findOneAndUpdate(
+      {
+        _id: postId,
+      },
+      {
+        $inc: { viewsCount: 1 },
+      },
+      {
+        returnDocument: 'after',
+      },
+      (err, doc) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: 'Не удалось вернуть статью',
+          });
+        }
+
+        if (!doc) {
+          return res.status(404).json({
+            message: 'Статья не найдена',
+          });
+        }
+
+        res.json(doc);
+      },
+    ).populate('user');
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: 'Не удалось получить статьи',
+    });
+  }
+};
