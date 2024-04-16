@@ -9,7 +9,7 @@ mongoose
   .then(() => console.log('DB ok'))
   .catch((err) => console.log("DB error", err))
 
-  // 111
+// 111
 const app = express()
 app.use(express.json())
 app.post('/auth/login', loginValidation, UseController.login)
@@ -19,7 +19,7 @@ app.get('/auth/me', checkAuth, UseController.getMe)
 app.get('/posts', PostController.getAll)
 app.get('/posts/:id', PostController.getOne)
 app.post('/posts', checkAuth, postCreateValidation, PostController.create)
-// app.delete('/posts', PostController.remove)
+app.delete('/posts/:id', checkAuth, PostController.remove)
 // app.patch('/posts', PostController.update)
 
 

@@ -35,10 +35,6 @@ export const getAll = async (req, res) => {
 export const getOne = async (req, res) => {
   try {
     const postId = req.params.id;
-    // res.status(500).json(postId);
-
-
-
     PostModel.findOneAndUpdate(
       {
         _id: postId,
@@ -64,6 +60,39 @@ export const getOne = async (req, res) => {
         }
 
         res.json(doc);
+      },
+    ).populate('user');
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: 'Не удалось получить статьи',
+    });
+  }
+};
+export const remove = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    PostModel.findOneAndDelete(
+      {
+        _id: postId,
+      },
+      (err, doc) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: 'Не удалось удалить статью',
+          });
+        }
+
+        if (!doc) {
+          return res.status(404).json({
+            message: 'Статья не найдена',
+          });
+        }
+
+        res.json({
+          success: true
+        });
       },
     ).populate('user');
   } catch (err) {
