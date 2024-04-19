@@ -35,23 +35,33 @@ export const getAll = async (req, res) => {
 export const getOne = async (req, res) => {
   try {
     const postId = req.params.id;
-    const doc = await PostModel.findByIdAndUpdate(
-      postId,
+    PostModel.findOneAndUpdate(
+      {
+        _id: postId,
+      },
       {
         $inc: { viewsCount: 1 },
       },
       {
-        new: true
+        returnDocument: 'after',
+      },
+      (err, doc) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: 'Не удалось вернуть статью',
+          });
+        }
+
+        if (!doc) {
+          return res.status(404).json({
+            message: 'Статья не найдена',
+          });
+        }
+
+        res.json(doc);
       },
     ).populate('user');
-
-    if (!doc) {
-      return res.status(404).json({
-        message: 'Статья не найдена',
-      });
-    }
-
-    res.json(doc);
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -62,24 +72,37 @@ export const getOne = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const postId = req.params.id;
-    const result = await PostModel.findByIdAndDelete(postId);
+    PostModel.findOneAndDelete(
+      {
+        _id: postId,
+      },
+      (err, doc) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: 'Не удалось удалить статью',
+          });
+        }
 
-    if (!result) {
-      return res.status(404).json({
-        message: 'Статья не найдена',
-      });
-    }
+        if (!doc) {
+          return res.status(404).json({
+            message: 'Статья не найдена',
+          });
+        }
 
-    res.json({
-      success: true
-    });
+        res.json({
+          success: true
+        });
+      },
+    ).populate('user');
   } catch (err) {
     console.log(err);
     res.status(500).json({
-      message: 'Не удалось удалить статью',
+      message: 'Не удалось получить статьи',
     });
   }
-}
+};
+
 
 
 export const update = async (req, res) => {
