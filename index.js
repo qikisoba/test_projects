@@ -3,8 +3,10 @@ import mongoose from "mongoose"
 import multer from "multer"
 import { postCreateValidation, loginValidation, registerValidation } from "./validations.js"
 import checkAuth from './utils/checkAuth.js'
-import * as UseController from './controllers/UseController.js'
+import * as UserController from './controllers/UserController.js'
 import * as PostController from './controllers/PostController.js'
+import handleValidationErrors from "./utils/handleValidationErrors.js"
+mongoose.set('strictQuery', true)
 mongoose
   .connect('mongodb+srv://iykisoba:artur42r@cluster0.reryft7.mongodb.net/blog?retryWrites=true&w=majority&appName=Cluster0')
   // .connect('mongodb+srv://dgoskiy:artur42r@cluster0.tohy41e.mongodb.net/blog?retryWrites=true&w=majority&appName=Cluster0')
@@ -26,9 +28,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.json())
-app.post('/auth/login', loginValidation, UseController.login)
-app.post('/auth/register', registerValidation, UseController.register)
-app.get('/auth/me', checkAuth, UseController.getMe)
+app.use('/uploads', express.static('uploads'))
+app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login)
+app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register)
+app.get('/auth/me', checkAuth, UserController.getMe)
 
 app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   res.json({
@@ -36,11 +39,11 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   });
 })
 
-app.post('/posts', checkAuth, postCreateValidation, PostController.create)
+app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create)
 app.get('/posts', PostController.getAll)
 app.get('/posts/:id', PostController.getOne)
 app.delete('/posts/:id', checkAuth, PostController.remove)
-app.patch('/posts/:id', checkAuth, PostController.update)
+app.patch('/posts/:id', checkAuth, handleValidationErrors, PostController.update)
 
 
 // app.post('/auth/ebasit', ebasit)
